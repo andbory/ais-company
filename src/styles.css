@@ -68,9 +68,23 @@ nav { display:flex; flex-direction:column; gap:5px; } nav button { height:46px; 
 .balance-currency-row strong { color:#d3e8e3; font-size:11px; }
 .balance-currency-row span { white-space:nowrap; }
 .balance-currency-row b { color:#8ac1b4; font-weight:500; margin-right:4px; }
+.balance-party-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; margin-top:12px; max-height:300px; overflow:auto; padding-right:2px; }
+.balance-party-card { padding:11px; border:1px solid rgba(113,185,167,.15); border-radius:13px; background:rgba(0,71,62,.18); }
+.balance-party-heading { display:flex; align-items:center; gap:8px; margin-bottom:9px; }
+.balance-party-heading .person-avatar { width:29px; height:29px; flex:0 0 29px; }
+.balance-party-heading div { min-width:0; display:flex; flex-direction:column; gap:2px; }
+.balance-party-heading strong { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#dcebe7; font-size:11px; }
+.balance-party-heading small { color:var(--ais-text-muted); font-size:9px; }
+.balance-party-currencies { display:grid; gap:5px; }
+.balance-party-currency { display:grid; grid-template-columns:42px 1fr 1fr; gap:5px; align-items:center; direction:ltr; padding-top:6px; border-top:1px solid rgba(255,255,255,.06); font-size:9px; }
+.balance-party-currency>b { color:#8ac1b4; font-size:9px; }
+.balance-party-currency span { color:#d2e3df; white-space:nowrap; text-align:right; direction:ltr; }
+.balance-party-currency i { display:block; font-style:normal; font-size:8px; margin-bottom:2px; }
+.balance-owed { color:#9bd0c3; }
+.balance-due { color:#df9898; }
 .balance-orbit { left:auto; right:34px; top:34px; width:88px; height:66px; border-radius:16px; }
 .balance-orbit .orbit-ring { display:none; }
-@media (max-width:760px) { .balance-currency-list { max-width:calc(100% - 8px); padding-top:3px; } .balance-currency-row { grid-template-columns:58px 1fr 1fr; gap:7px; font-size:9px; } .balance-orbit { left:auto; right:20px; top:24px; transform:none; width:76px; height:56px; } }
+@media (max-width:760px) { .balance-currency-list { max-width:calc(100% - 8px); padding-top:3px; } .balance-currency-row { grid-template-columns:58px 1fr 1fr; gap:7px; font-size:9px; } .balance-party-list { grid-template-columns:1fr; max-height:330px; } .balance-orbit { left:auto; right:20px; top:24px; transform:none; width:76px; height:56px; } }
 .more-button { display:inline-grid; place-items:center; width:40px; height:40px; padding:0; border:1px solid transparent; border-radius:10px; cursor:pointer; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
 .more-button:active { background:rgba(255,255,255,.08); transform:scale(.96); }
 .more-button:focus-visible { outline:2px solid #71b9a7; outline-offset:2px; }
