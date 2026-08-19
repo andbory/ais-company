@@ -1,0 +1,378 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../server/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  VIEWER
+}
+
+enum PartyType {
+  PERSON
+  OFFICE
+  COMPANY
+}
+
+enum CurrencyCode {
+  USD
+  IQD
+  IRR_TOMAN
+  EUR
+  SAR
+}
+
+enum AccountDirection {
+  WE_ARE_OWED
+  THEY_ARE_OWED
+}
+
+enum TransferDirection {
+  SENT
+  RECEIVED
+}
+
+enum SettlementDirection {
+  WE_PAID_THEM
+  THEY_PAID_US
+}
+
+enum FinancialOperationType {
+  TRANSFER
+  SETTLEMENT
+  OPENING_BALANCE
+}
+
+enum BusinessNumberType {
+  PERSON_TRANSFER
+  OFFICE_TRANSFER
+  COMPANY_TRANSFER
+  SETTLEMENT
+}
+
+enum SyncMutationStatus {
+  PENDING
+  PROCESSING
+  ACKNOWLEDGED
+  FAILED
+}
+
+model User {
+  id                 String         @id @default(uuid()) @db.Uuid
+  username           String         @unique @db.VarChar(64)
+  passwordHash       String         @db.VarChar(255)
+  role               UserRole
+  isActive           Boolean        @default(true)
+  createdAt          DateTime       @default(now()) @db.Timestamptz(3)
+  updatedAt          DateTime       @updatedAt @db.Timestamptz(3)
+  auditLogs          AuditLog[]
+  createdTransfers   Transfer[]     @relation("TransferCreatedBy")
+  updatedTransfers   Transfer[]     @relation("TransferUpdatedBy")
+  createdSettlements Settlement[]   @relation("SettlementCreatedBy")
+  updatedSettlements Settlement[]   @relation("SettlementUpdatedBy")
+  syncMutations      SyncMutation[]
+  sessions           AuthSession[]
+
+  @@index([role, isActive])
+  @@map("ais_users")
+}
+
+model AuthSession {
+  id         String    @id @default(uuid()) @db.Uuid
+  tokenHash  String    @unique @db.VarChar(128)
+  userId     String    @db.Uuid
+  expiresAt  DateTime  @db.Timestamptz(3)
+  createdAt  DateTime  @default(now()) @db.Timestamptz(3)
+  lastSeenAt DateTime  @default(now()) @db.Timestamptz(3)
+  revokedAt  DateTime? @db.Timestamptz(3)
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([userId, revokedAt, expiresAt])
+  @@index([expiresAt])
+  @@map("ais_auth_sessions")
+}
+
+model Device {
+  id            String         @id @default(uuid()) @db.Uuid
+  deviceKey     String         @unique @db.VarChar(128)
+  label         String?        @db.VarChar(120)
+  lastSeenAt    DateTime?      @db.Timestamptz(3)
+  createdAt     DateTime       @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime       @updatedAt @db.Timestamptz(3)
+  numberBlocks  NumberBlock[]
+  syncMutations SyncMutation[]
+  transfers     Transfer[]
+  settlements   Settlement[]
+
+  @@index([lastSeenAt])
+  @@map("ais_devices")
+}
+
+model Party {
+  id              String           @id @default(uuid()) @db.Uuid
+  type            PartyType
+  name            String           @db.VarChar(200)
+  phone           String?          @db.VarChar(50)
+  address         String?          @db.VarChar(500)
+  country         String?          @db.VarChar(100)
+  notes           String?          @db.VarChar(2000)
+  isArchived      Boolean          @default(false)
+  createdAt       DateTime         @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime         @updatedAt @db.Timestamptz(3)
+  personProfile   PersonProfile?
+  officeProfile   OfficeProfile?
+  companyProfile  CompanyProfile?
+  openingBalances OpeningBalance[]
+  transfers       Transfer[]
+  settlements     Settlement[]
+  ledgerEffects   LedgerEffect[]
+
+  @@index([type, name])
+  @@index([isArchived, updatedAt])
+  @@map("ais_parties")
+}
+
+model PersonProfile {
+  id      String @id @default(uuid()) @db.Uuid
+  partyId String @unique @db.Uuid
+  party   Party  @relation(fields: [partyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@map("ais_person_profiles")
+}
+
+model OfficeProfile {
+  id        String  @id @default(uuid()) @db.Uuid
+  partyId   String  @unique @db.Uuid
+  ownerName String? @db.VarChar(200)
+  party     Party   @relation(fields: [partyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@map("ais_office_profiles")
+}
+
+model CompanyProfile {
+  id              String  @id @default(uuid()) @db.Uuid
+  partyId         String  @unique @db.Uuid
+  responsibleName String? @db.VarChar(200)
+  party           Party   @relation(fields: [partyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@map("ais_company_profiles")
+}
+
+model OpeningBalance {
+  id        String           @id @default(uuid()) @db.Uuid
+  partyId   String           @db.Uuid
+  currency  CurrencyCode
+  direction AccountDirection
+  amount    Decimal          @db.Decimal(20, 2)
+  createdAt DateTime         @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime         @updatedAt @db.Timestamptz(3)
+  party     Party            @relation(fields: [partyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@unique([partyId, currency, direction])
+  @@index([partyId, currency])
+  @@map("ais_opening_balances")
+}
+
+model Transfer {
+  id                 String            @id @default(uuid()) @db.Uuid
+  businessNumber     String            @unique @db.VarChar(32)
+  partyId            String            @db.Uuid
+  direction          TransferDirection
+  date               DateTime          @db.Date
+  senderName         String            @db.VarChar(200)
+  recipientName      String?           @db.VarChar(200)
+  location           String?           @db.VarChar(200)
+  beneficiaryName    String?           @db.VarChar(200)
+  beneficiaryPhone   String?           @db.VarChar(50)
+  beneficiaryCountry String?           @db.VarChar(100)
+  currency           CurrencyCode
+  amount             Decimal           @db.Decimal(20, 2)
+  commission         Decimal           @db.Decimal(20, 2)
+  total              Decimal           @db.Decimal(20, 2)
+  notes              String?           @db.VarChar(2000)
+  version            Int               @default(1)
+  mutationId         String?           @unique @db.VarChar(128)
+  deviceId           String?           @db.Uuid
+  createdById        String?           @db.Uuid
+  updatedById        String?           @db.Uuid
+  createdAt          DateTime          @default(now()) @db.Timestamptz(3)
+  updatedAt          DateTime          @updatedAt @db.Timestamptz(3)
+  deletedAt          DateTime?         @db.Timestamptz(3)
+  party              Party             @relation(fields: [partyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  device             Device?           @relation(fields: [deviceId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  createdBy          User?             @relation("TransferCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  updatedBy          User?             @relation("TransferUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  ledgerEffects      LedgerEffect[]
+
+  @@index([partyId, date])
+  @@index([direction, currency, date])
+  @@index([date, createdAt])
+  @@index([deletedAt, date])
+  @@map("ais_transfers")
+}
+
+model Settlement {
+  id             String              @id @default(uuid()) @db.Uuid
+  businessNumber String              @unique @db.VarChar(32)
+  partyId        String              @db.Uuid
+  date           DateTime            @db.Date
+  currency       CurrencyCode
+  amount         Decimal             @db.Decimal(20, 2)
+  direction      SettlementDirection
+  notes          String?             @db.VarChar(2000)
+  version        Int                 @default(1)
+  mutationId     String?             @unique @db.VarChar(128)
+  deviceId       String?             @db.Uuid
+  createdById    String?             @db.Uuid
+  updatedById    String?             @db.Uuid
+  createdAt      DateTime            @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime            @updatedAt @db.Timestamptz(3)
+  deletedAt      DateTime?           @db.Timestamptz(3)
+  party          Party               @relation(fields: [partyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  device         Device?             @relation(fields: [deviceId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  createdBy      User?               @relation("SettlementCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  updatedBy      User?               @relation("SettlementUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  ledgerEffects  LedgerEffect[]
+
+  @@index([partyId, date])
+  @@index([direction, currency, date])
+  @@index([deletedAt, date])
+  @@map("ais_settlements")
+}
+
+model LedgerEffect {
+  id            String                 @id @default(uuid()) @db.Uuid
+  partyId       String                 @db.Uuid
+  currency      CurrencyCode
+  direction     AccountDirection
+  amount        Decimal                @db.Decimal(20, 2)
+  operationType FinancialOperationType
+  transferId    String?                @db.Uuid
+  settlementId  String?                @db.Uuid
+  createdAt     DateTime               @default(now()) @db.Timestamptz(3)
+  party         Party                  @relation(fields: [partyId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  transfer      Transfer?              @relation(fields: [transferId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  settlement    Settlement?            @relation(fields: [settlementId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([partyId, currency, direction, createdAt])
+  @@index([transferId])
+  @@index([settlementId])
+  @@map("ais_ledger_effects")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String?  @db.Uuid
+  deviceId   String?  @db.Uuid
+  action     String   @db.VarChar(40)
+  entityType String   @db.VarChar(80)
+  entityId   String   @db.VarChar(128)
+  reason     String?  @db.VarChar(1000)
+  oldValues  Json?
+  newValues  Json?
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+
+  @@index([entityType, entityId, createdAt])
+  @@index([userId, createdAt])
+  @@map("ais_audit_logs")
+}
+
+model SyncMutation {
+  id             String             @id @default(uuid()) @db.Uuid
+  mutationId     String             @unique @db.VarChar(128)
+  entityType     String             @db.VarChar(80)
+  entityId       String             @db.VarChar(128)
+  operation      String             @db.VarChar(20)
+  payload        Json
+  status         SyncMutationStatus @default(PENDING)
+  attempts       Int                @default(0)
+  lastError      String?            @db.VarChar(2000)
+  userId         String?            @db.Uuid
+  deviceId       String?            @db.Uuid
+  createdAt      DateTime           @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime           @updatedAt @db.Timestamptz(3)
+  acknowledgedAt DateTime?          @db.Timestamptz(3)
+  user           User?              @relation(fields: [userId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  device         Device?            @relation(fields: [deviceId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+
+  @@index([status, updatedAt])
+  @@index([entityType, entityId])
+  @@map("ais_sync_mutations")
+}
+
+model NumberBlock {
+  id          String             @id @default(uuid()) @db.Uuid
+  type        BusinessNumberType
+  deviceId    String             @db.Uuid
+  startNumber Int
+  endNumber   Int
+  nextNumber  Int
+  createdAt   DateTime           @default(now()) @db.Timestamptz(3)
+  expiresAt   DateTime?          @db.Timestamptz(3)
+  device      Device             @relation(fields: [deviceId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([type, deviceId, nextNumber])
+  @@map("ais_number_blocks")
+}
+
+model BackupMetadata {
+  id          String    @id @default(uuid()) @db.Uuid
+  startedAt   DateTime  @db.Timestamptz(3)
+  completedAt DateTime? @db.Timestamptz(3)
+  status      String    @db.VarChar(30)
+  storageKey  String?   @db.VarChar(500)
+  checksum    String?   @db.VarChar(128)
+  sizeBytes   BigInt?
+  createdAt   DateTime  @default(now()) @db.Timestamptz(3)
+
+  @@index([status, startedAt])
+  @@map("ais_backup_metadata")
+}
+
+model SystemSetting {
+  key       String   @id @db.VarChar(100)
+  value     Json
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@map("ais_system_settings")
+}
+
+model Invoice {
+  id            String        @id @default(uuid()) @db.Uuid
+  invoiceNumber String        @unique @db.VarChar(64)
+  invoiceType   String        @db.VarChar(100)
+  customerName  String        @db.VarChar(200)
+  date          DateTime      @db.Date
+  time          DateTime      @db.Time(0)
+  netTotal      Decimal       @db.Decimal(18, 2)
+  amountOwed    Decimal       @db.Decimal(18, 2)
+  totalAmount   Decimal       @db.Decimal(18, 2)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  items         InvoiceItem[]
+
+  @@index([customerName])
+  @@index([date])
+  @@map("invoices")
+}
+
+model InvoiceItem {
+  id           String  @id @default(uuid()) @db.Uuid
+  invoiceId    String  @db.Uuid
+  code         String  @db.VarChar(64)
+  productName  String  @db.VarChar(200)
+  quantity     Decimal @db.Decimal(18, 3)
+  unitOrWeight String  @db.VarChar(100)
+  unitPrice    Decimal @db.Decimal(18, 2)
+  total        Decimal @db.Decimal(18, 2)
+  invoice      Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([invoiceId])
+  @@map("invoice_items")
+}

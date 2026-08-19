@@ -1,0 +1,49 @@
+{
+  "name": "invoice-management-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "server:dev": "tsx server/http/server.ts",
+    "server:build": "prisma generate && tsc -p server/tsconfig.json && node scripts/copy-prisma-runtime.mjs",
+    "build": "tsc -b && vite build",
+    "build:all": "npm run build && npm run server:build",
+    "start:server": "node dist-server/server/http/server.js",
+    "start": "node dist-server/server/http/server.js",
+    "preview": "vite preview",
+    "test:financial": "node --test --experimental-strip-types tests/financial-engine.test.ts",
+    "test:auth": "node --test --experimental-strip-types tests/auth.test.ts",
+    "test:parties": "node --test --experimental-strip-types tests/parties.validation.test.ts",
+    "test:transfers": "node --test --experimental-strip-types tests/transfers.validation.test.ts",
+    "test:settlements": "node --test --experimental-strip-types tests/settlements.test.ts",
+    "test:reports": "node --test --experimental-strip-types tests/reports.test.ts",
+    "test:sync": "node --test --experimental-strip-types tests/sync.test.ts",
+    "test:backup": "node --test --experimental-strip-types tests/backup.test.ts",
+    "test:all": "node --test --experimental-strip-types tests/*.test.ts",
+    "auth:seed": "tsx server/auth/seed-users.ts",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate:dev": "prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy",
+    "prisma:deploy": "prisma migrate deploy"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "latest",
+    "@prisma/client": "6.19.0",
+    "dotenv": "latest",
+    "pg": "latest",
+    "vite": "latest",
+    "typescript": "latest",
+    "react": "latest",
+    "react-dom": "latest"
+  },
+  "devDependencies": {
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "@types/node": "latest",
+    "electron": "latest",
+    "electron-builder": "latest",
+    "prisma": "6.19.0",
+    "tsx": "latest"
+  }
+}
