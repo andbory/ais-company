@@ -67,7 +67,7 @@ async function body<T>(request: IncomingMessage): Promise<T> {
   return (raw ? JSON.parse(raw) : {}) as T
 }
 
-const server = createServer(async (request, response) => {
+export const requestHandler = async (request: IncomingMessage, response: ServerResponse) => {
   if (request.method === 'OPTIONS') return respond(response, 204, {}, request)
   const url = new URL(request.url ?? '/', `http://${request.headers.host ?? 'localhost'}`)
   const idMatch = url.pathname.match(/^\/api\/invoices\/([^/]+)$/)
@@ -236,6 +236,6 @@ const server = createServer(async (request, response) => {
     const status = message === 'AUTH_REQUIRED' ? 401 : message.includes('ليس لديك صلاحية') ? 403 : message.includes('Unique constraint') ? 409 : message.includes('غير صالح') || message.includes('يجب') || message.includes('مطلوب') || message.includes('يتجاوز') || message.includes('لا يمكن') ? 400 : 500
     return respond(response, status, { error: status === 409 ? 'رقم الفاتورة مستخدم مسبقاً.' : status === 400 ? message : status === 401 ? 'يجب تسجيل الدخول أولاً.' : status === 403 ? 'ليس لديك صلاحية لتنفيذ هذه العملية.' : 'تعذر تنفيذ العملية.' }, request)
   }
-})
+}
 
-server.listen(port, () => console.log(`Invoice API listening on http://localhost:${port}`))
+if (process.env.VERCEL !== '1') createServer(requestHandler).listen(port, () => console.log(`Invoice API listening on http://localhost:${port}`))
