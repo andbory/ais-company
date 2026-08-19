@@ -20,6 +20,7 @@ import { reportRepository } from '../reports/report.repository.js'
 import { validateCursor, validateSyncBatch } from '../sync/sync.validation.js'
 import { syncRepository } from '../sync/sync.repository.js'
 import { backupService } from '../backup/backup.service.js'
+import { settingsRepository, validateCompanySettings } from '../settings/settings.repository.js'
 
 const port = Number(process.env.PORT ?? 3001)
 const webRoot = path.resolve(process.cwd(), 'dist')
@@ -93,6 +94,14 @@ export const requestHandler = async (request: IncomingMessage, response: ServerR
       await revokeSession(parseSessionCookie(request))
       clearSessionCookie(response, process.env.NODE_ENV === 'production')
       return respond(response, 204, {}, request)
+    }
+    if (url.pathname === '/api/settings/company' && request.method === 'GET') {
+      await requirePermission(request, 'settings:read')
+      return respond(response, 200, await settingsRepository.getCompany(), request)
+    }
+    if (url.pathname === '/api/settings/company' && request.method === 'PUT') {
+      await requirePermission(request, 'settings:write')
+      return respond(response, 200, await settingsRepository.updateCompany(validateCompanySettings(await body(request))), request)
     }
     if (url.pathname === '/api/parties' && request.method === 'GET') {
       await requirePermission(request, 'parties:read')

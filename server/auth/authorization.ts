@@ -5,14 +5,14 @@ export const permissions = [
   'transfers:read', 'transfers:write', 'transfers:delete',
   'settlements:read', 'settlements:write',
   'opening-balances:read', 'opening-balances:write',
-  'reports:read', 'settings:write', 'audit:read', 'print:export', 'sync:read', 'sync:write', 'backup:read', 'backup:write',
+  'reports:read', 'settings:read', 'settings:write', 'audit:read', 'print:export', 'sync:read', 'sync:write', 'backup:read', 'backup:write',
 ] as const
 
 export type Permission = (typeof permissions)[number]
 
 const rolePermissions: Record<UserRole, ReadonlySet<Permission>> = {
   ADMIN: new Set(permissions),
-  VIEWER: new Set(['parties:read', 'transfers:read', 'settlements:read', 'opening-balances:read', 'reports:read', 'print:export']),
+  VIEWER: new Set(['parties:read', 'transfers:read', 'settlements:read', 'opening-balances:read', 'reports:read', 'settings:read', 'print:export']),
 }
 
 export function can(role: UserRole, permission: Permission): boolean {
