@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm run build:all",
+  "buildCommand": "npm run prisma:deploy && npm run auth:seed && npm run build:all",
   "outputDirectory": "dist",
   "functions": {
     "api/index.ts": { "maxDuration": 60 }
