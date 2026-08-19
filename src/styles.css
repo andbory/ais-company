@@ -163,6 +163,19 @@ nav { display:flex; flex-direction:column; gap:5px; } nav button { height:46px; 
 .company-person-row input { width:100%; min-height:42px; padding:0 11px; color:var(--ais-text); background:rgba(255,255,255,.045); border:1px solid rgba(255,255,255,.11); border-radius:11px; outline:none; font:inherit; }
 .company-person-row input:focus { border-color:rgba(113,185,167,.55); box-shadow:0 0 0 3px rgba(113,185,167,.1); }
 .company-person-row input:disabled { opacity:.6; }
+.report-controls { padding:18px; margin-bottom:17px; }
+.report-control-grid { display:grid; grid-template-columns:1.35fr 1.2fr repeat(3,1fr); gap:10px; }
+.report-control-grid label { display:flex; flex-direction:column; gap:6px; color:var(--ais-text-secondary); font-size:10px; }
+.report-control-grid input,.report-control-grid select { width:100%; min-height:40px; padding:0 10px; color:var(--ais-text); background:rgba(255,255,255,.045); border:1px solid rgba(255,255,255,.11); border-radius:10px; outline:none; font:inherit; font-size:10px; }
+.report-control-grid input:focus,.report-control-grid select:focus { border-color:rgba(113,185,167,.55); box-shadow:0 0 0 3px rgba(113,185,167,.1); }
+.report-control-grid select option { color:#10221f; }
+.report-control-actions { display:flex; flex-wrap:wrap; gap:9px; margin-top:13px; padding-top:13px; border-top:1px solid rgba(255,255,255,.07); }
+.report-currency-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+.report-currency-grid>div { display:grid; gap:7px; padding:14px; border:1px solid rgba(113,185,167,.14); border-radius:12px; background:rgba(0,71,62,.18); font-size:10px; }
+.report-currency-grid b { color:#a6d5cb; direction:ltr; }
+.report-currency-grid span { color:var(--ais-text-secondary); direction:rtl; }
+.report-table-card { margin-top:17px; }
 @media (max-width:760px) { .settings-grid { grid-template-columns:1fr; } .session-settings-card { grid-column:auto; } .detail-list p,.settings-info-list p { align-items:flex-start; flex-direction:column; gap:4px; } .detail-list span,.settings-info-list span { text-align:right; } }
 @media (max-width:760px) { .company-person-row { grid-template-columns:1fr; } .company-person-row .more-button { justify-self:start; } }
 @media (max-width:760px) { .people-cards-grid { grid-template-columns:1fr; gap:11px; } .person-balance-card { padding:16px; } .person-balance-currencies { gap:7px; } .person-currency-box { padding:10px 8px; } }
+@media (max-width:760px) { .report-control-grid { grid-template-columns:1fr 1fr; } .report-control-grid label:first-child { grid-column:1/-1; } .report-control-actions .glass-button { flex:1; } .report-currency-grid { grid-template-columns:1fr 1fr; } }
