@@ -224,11 +224,11 @@ export const requestHandler = async (request: IncomingMessage, response: ServerR
       const backup = await backupService.start(user.id)
       return respond(response, 201, { ...backup, sizeBytes: backup.sizeBytes?.toString() ?? null }, request)
     }
-    if (url.pathname === '/api/invoices' && request.method === 'GET') return respond(response, 200, await invoiceRepository.findAll(), request)
-    if (url.pathname === '/api/invoices' && request.method === 'POST') return respond(response, 201, await invoiceRepository.create(await body<InvoiceInput>(request)), request)
-    if (idMatch && request.method === 'GET') return respond(response, 200, await invoiceRepository.findById(idMatch[1]) ?? { error: 'الفاتورة غير موجودة.' }, request)
-    if (idMatch && request.method === 'PATCH') return respond(response, 200, await invoiceRepository.update(idMatch[1], await body<InvoiceUpdateInput>(request)) ?? { error: 'الفاتورة غير موجودة.' }, request)
-    if (idMatch && request.method === 'DELETE') { await invoiceRepository.delete(idMatch[1]); return respond(response, 204, {}, request) }
+    if (url.pathname === '/api/invoices' && request.method === 'GET') { await requirePermission(request, 'transfers:read'); return respond(response, 200, await invoiceRepository.findAll(), request) }
+    if (url.pathname === '/api/invoices' && request.method === 'POST') { await requirePermission(request, 'transfers:write'); return respond(response, 201, await invoiceRepository.create(await body<InvoiceInput>(request)), request) }
+    if (idMatch && request.method === 'GET') { await requirePermission(request, 'transfers:read'); return respond(response, 200, await invoiceRepository.findById(idMatch[1]) ?? { error: 'الفاتورة غير موجودة.' }, request) }
+    if (idMatch && request.method === 'PATCH') { await requirePermission(request, 'transfers:write'); return respond(response, 200, await invoiceRepository.update(idMatch[1], await body<InvoiceUpdateInput>(request)) ?? { error: 'الفاتورة غير موجودة.' }, request) }
+    if (idMatch && request.method === 'DELETE') { await requirePermission(request, 'transfers:delete'); await invoiceRepository.delete(idMatch[1]); return respond(response, 204, {}, request) }
     return respond(response, 404, { error: 'المسار غير موجود.' }, request)
   } catch (error) {
     const message = error instanceof Error ? error.message : 'حدث خطأ غير متوقع.'
