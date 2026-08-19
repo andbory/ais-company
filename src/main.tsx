@@ -74,6 +74,7 @@ function App() {
   const [user, setUser] = useState<ApiUser | null>(null)
   const [authLoading, setAuthLoading] = useState(true)
   useEffect(() => { api<{ user: ApiUser }>('/auth/me').then((result) => setUser(result.user)).catch(() => setUser(null)).finally(() => setAuthLoading(false)); const sync = () => void flushMutations(clientRuntime.apiBaseUrl); window.addEventListener('online', sync); if (navigator.onLine) sync(); return () => window.removeEventListener('online', sync) }, [])
+  useEffect(() => { const handleHeaderActions = (event: Event) => { const target = event.target as HTMLElement; if (target.closest('button[aria-label="البحث"]')) setScreen('transfers'); if (target.closest('button[aria-label="الإشعارات"]')) window.alert('لا توجد إشعارات جديدة حالياً.') }; document.addEventListener('click', handleHeaderActions); return () => document.removeEventListener('click', handleHeaderActions) }, [])
   if (authLoading) return <div className="auth-state">جارٍ تحميل النظام...</div>
   if (!user) return <Login onLogin={setUser}/>
   const title = navItems.find((item) => item.id === screen)?.label ?? 'الرئيسية'
