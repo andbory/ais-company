@@ -8,6 +8,7 @@ export type CompanySettings = {
   phone: string
   logoDataUrl: string | null
   stampDataUrl: string | null
+  companyPeople: Array<{ id: string; name: string; role: string }>
 }
 
 export const defaultCompanySettings: CompanySettings = {
@@ -18,6 +19,7 @@ export const defaultCompanySettings: CompanySettings = {
   phone: '',
   logoDataUrl: '/icons/ais-192.svg',
   stampDataUrl: null,
+  companyPeople: [],
 }
 
 function text(value: unknown, field: keyof CompanySettings, max: number): string {
@@ -31,6 +33,17 @@ function image(value: unknown, field: 'logoDataUrl' | 'stampDataUrl'): string | 
   return value
 }
 
+function people(value: unknown): Array<{ id: string; name: string; role: string }> {
+  if (value === undefined) return []
+  if (!Array.isArray(value) || value.length > 100) throw new Error('أشخاص الشركة غير صالحين.')
+  return value.map((item) => {
+    if (!item || typeof item !== 'object') throw new Error('بيانات شخص الشركة غير صالحة.')
+    const person = item as Record<string, unknown>
+    if (typeof person.id !== 'string' || !person.id || typeof person.name !== 'string' || !person.name.trim() || person.name.length > 200 || typeof person.role !== 'string' || person.role.length > 120) throw new Error('بيانات شخص الشركة غير صالحة.')
+    return { id: person.id, name: person.name.trim(), role: person.role.trim() }
+  })
+}
+
 export function validateCompanySettings(input: unknown): CompanySettings {
   if (!input || typeof input !== 'object') throw new Error('إعدادات الشركة غير صالحة.')
   const value = input as Record<string, unknown>
@@ -42,6 +55,7 @@ export function validateCompanySettings(input: unknown): CompanySettings {
     phone: text(value.phone ?? '', 'phone', 50),
     logoDataUrl: image(value.logoDataUrl, 'logoDataUrl'),
     stampDataUrl: image(value.stampDataUrl, 'stampDataUrl'),
+    companyPeople: people(value.companyPeople),
   }
 }
 
