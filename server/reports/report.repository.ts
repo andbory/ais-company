@@ -62,7 +62,7 @@ export const reportRepository = {
   },
 
   async transferReport(filters: ReportFilters) {
-    const rows = await prisma.transfer.findMany({ where: { deletedAt: null, ...partyWhere(filters), ...dateWhere(filters), ...(filters.currency ? { currency: filters.currency } : {}) }, select: { businessNumber: true, date: true, currency: true, direction: true, amount: true, commission: true, total: true, party: { select: { id: true, name: true, type: true } } }, orderBy: [{ date: 'desc' }, { createdAt: 'desc' }] })
+    const rows = await prisma.transfer.findMany({ where: { deletedAt: null, ...partyWhere(filters), ...dateWhere(filters), ...(filters.currency ? { currency: filters.currency } : {}) }, select: { businessNumber: true, date: true, currency: true, direction: true, amount: true, commission: true, total: true, senderName: true, recipientName: true, beneficiaryName: true, beneficiaryPhone: true, beneficiaryCountry: true, location: true, notes: true, party: { select: { id: true, name: true, type: true, phone: true, address: true, country: true } } }, orderBy: [{ date: 'desc' }, { createdAt: 'desc' }] })
     return rows.map((row) => ({ ...row, date: row.date.toISOString().slice(0, 10), amount: row.amount.toString(), commission: row.commission.toString(), total: row.total.toString() }))
   },
 
