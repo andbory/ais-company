@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: ais-company
+    runtime: node
+    plan: free
+    buildCommand: npm run build:all
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: AIS_ADMIN_PASSWORD
+        sync: false
+      - key: AIS_VIEWER_PASSWORD
+        sync: false
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
