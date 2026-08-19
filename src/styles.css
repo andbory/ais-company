@@ -60,3 +60,6 @@ nav { display:flex; flex-direction:column; gap:5px; } nav button { height:46px; 
 .balance-orbit { left:auto; right:34px; top:34px; width:88px; height:66px; border-radius:16px; }
 .balance-orbit .orbit-ring { display:none; }
 @media (max-width:760px) { .balance-currency-list { max-width:calc(100% - 8px); padding-top:3px; } .balance-currency-row { grid-template-columns:58px 1fr 1fr; gap:7px; font-size:9px; } .balance-orbit { left:auto; right:20px; top:24px; transform:none; width:76px; height:56px; } }
+.more-button { display:inline-grid; place-items:center; width:40px; height:40px; padding:0; border:1px solid transparent; border-radius:10px; cursor:pointer; touch-action:manipulation; -webkit-tap-highlight-color:transparent; }
+.more-button:active { background:rgba(255,255,255,.08); transform:scale(.96); }
+.more-button:focus-visible { outline:2px solid #71b9a7; outline-offset:2px; }
