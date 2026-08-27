@@ -370,6 +370,61 @@ td { height:54px; padding:10px 12px; }
 .company-settings-card, .document-settings-card, .people-settings-card { padding:24px; }
 .account-cards-grid, .simple-grid { gap:16px; }
 
+/* Home screen — a quiet command surface instead of a conventional dashboard */
+.home-screen { display:flex; flex-direction:column; gap:18px; }
+.home-hero { min-height:330px; display:grid; grid-template-columns:minmax(0,1fr) 330px; align-items:center; gap:28px; padding:38px 42px; border:1px solid rgba(176,235,220,.13); border-radius:28px; background:radial-gradient(circle at 78% 45%,rgba(20,137,113,.18),transparent 25%),linear-gradient(135deg,rgba(255,255,255,.07),rgba(0,60,50,.22)); box-shadow:0 28px 80px rgba(0,0,0,.25),inset 0 1px 0 rgba(228,255,248,.08); overflow:hidden; position:relative; }
+.home-hero:after { content:''; position:absolute; inset:auto 0 0; height:1px; background:linear-gradient(90deg,transparent,rgba(125,209,189,.34),transparent); }
+.home-hero-copy { position:relative; z-index:1; max-width:620px; }
+.home-brand-lockup { display:flex; align-items:center; gap:10px; margin-bottom:34px; color:#b9dcd4; font-size:11px; font-weight:700; letter-spacing:.12em; }
+.home-brand-lockup img { width:34px; height:34px; object-fit:contain; padding:4px; border-radius:11px; background:rgba(3,19,16,.72); border:1px solid rgba(118,203,181,.25); }
+.home-hero h1 { font-size:clamp(30px,4vw,48px); letter-spacing:-.055em; line-height:1.15; }
+.home-hero p { max-width:520px; margin-top:14px; color:var(--ais-text-secondary); font-size:13px; line-height:1.9; }
+.home-actions { display:flex; gap:10px; margin-top:28px; }
+.home-orb { width:250px; height:250px; margin-inline:auto; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; color:#8fcabd; font-size:10px; position:relative; border:1px solid rgba(116,203,181,.2); border-radius:50%; background:radial-gradient(circle,rgba(18,117,98,.3),rgba(1,27,23,.06) 60%,transparent 62%); box-shadow:0 0 0 18px rgba(90,186,164,.025),0 0 0 42px rgba(90,186,164,.018); }
+.home-orb img { width:70px; height:70px; object-fit:contain; padding:8px; border-radius:22px; background:rgba(3,19,16,.76); border:1px solid rgba(118,203,181,.3); box-shadow:0 15px 36px rgba(0,0,0,.3); }
+.home-orb-ring { position:absolute; inset:15px; border:1px solid rgba(116,203,181,.13); border-radius:50%; transform:rotate(-25deg); }
+.home-orb-ring-two { inset:-12px; border-color:rgba(116,203,181,.07); border-left-color:rgba(116,203,181,.25); transform:rotate(48deg); }
+.home-command-grid { display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:18px; align-items:stretch; }
+.home-balance-card { padding:24px; min-height:294px; }
+.home-card-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:15px; padding-bottom:17px; border-bottom:1px solid rgba(255,255,255,.07); }
+.home-card-heading h2 { font-size:17px; }
+.home-card-heading button { display:inline-flex; align-items:center; gap:7px; background:none; color:#8ac1b4; font-size:10px; padding-top:4px; }
+.home-balance-list { display:flex; flex-direction:column; }
+.home-party-row { min-height:58px; display:flex; align-items:center; gap:10px; border-bottom:1px solid rgba(255,255,255,.055); }
+.home-party-row:last-child { border-bottom:0; }
+.home-party-row > div:nth-child(2) { display:flex; flex-direction:column; gap:3px; flex:1; min-width:0; }
+.home-party-row strong { font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.home-party-row small { color:var(--ais-text-muted); font-size:9px; }
+.home-party-values { display:flex; gap:16px; direction:ltr; }
+.home-party-values span { display:flex; flex-direction:column; align-items:flex-end; gap:2px; color:#d7e7e2; font-size:11px; min-width:52px; }
+.home-party-values b { color:#78bdaa; font-size:8px; font-weight:600; }
+.home-stat-column { display:grid; grid-template-rows:1fr 1fr; gap:18px; }
+.home-stat-column .stat-card { min-height:0; }
+.home-lower-grid { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(280px,.9fr); gap:18px; }
+
+@media (max-width:900px) {
+  .home-hero { grid-template-columns:minmax(0,1fr) 220px; padding:30px; }
+  .home-orb { width:190px; height:190px; }
+  .home-orb img { width:58px; height:58px; }
+  .home-command-grid, .home-lower-grid { grid-template-columns:1fr; }
+  .home-stat-column { grid-template-columns:repeat(2,minmax(0,1fr)); grid-template-rows:none; }
+}
+
+@media (max-width:600px) {
+  .home-hero { display:block; min-height:0; padding:24px 20px 26px; }
+  .home-brand-lockup { margin-bottom:26px; }
+  .home-hero h1 { font-size:31px; }
+  .home-hero p { font-size:12px; }
+  .home-actions { flex-direction:column; }
+  .home-actions .glass-button { width:100%; }
+  .home-orb { width:148px; height:148px; margin:28px auto 0; }
+  .home-orb img { width:46px; height:46px; border-radius:15px; }
+  .home-stat-column { gap:10px; }
+  .home-stat-column .stat-card { padding:14px; }
+  .home-balance-card { padding:18px; }
+  .home-party-values { gap:8px; }
+}
+
 @media (min-width:761px) and (max-width:1120px) {
   :root { --layout-sidebar:220px; --layout-gutter:28px; }
   .page-content { padding-top:32px; }
