@@ -520,6 +520,28 @@ td { height:54px; padding:10px 12px; }
 
 @media (max-width:600px) { .page-action .glass-button { width:100%; } }
 
+/* Reports screen — a deliberate report workspace with filters first, output second */
+.report-controls { padding:20px; margin-bottom:18px; background:rgba(17,23,22,.82); }
+.report-control-grid { display:grid; grid-template-columns:1.3fr 1fr 1fr 1fr 1fr; gap:12px; }
+.report-control-grid label { display:flex; flex-direction:column; gap:7px; color:var(--ais-text-muted); font-size:10px; }
+.report-control-grid input, .report-control-grid select { width:100%; min-height:44px; padding-inline:12px; color:var(--ais-text-secondary); background:rgba(255,255,255,.035); border:1px solid rgba(255,255,255,.09); border-radius:11px; outline:none; }
+.report-control-grid input:focus, .report-control-grid select:focus { border-color:rgba(125,183,168,.35); box-shadow:0 0 0 3px rgba(125,183,168,.06); }
+.report-control-actions { display:flex; justify-content:flex-start; gap:9px; margin-top:18px; padding-top:17px; border-top:1px solid rgba(255,255,255,.07); }
+.report-control-actions .glass-button { min-width:130px; }
+.report-table-card { background:rgba(17,23,22,.82); }
+.report-currency-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-top:18px; }
+.report-currency-grid > div { display:flex; flex-direction:column; gap:8px; padding:16px; border:1px solid rgba(255,255,255,.07); border-radius:13px; background:rgba(255,255,255,.025); }
+.report-currency-grid b { color:#8fb8ae; font-size:11px; }
+.report-currency-grid span { color:var(--ais-text-secondary); direction:rtl; font-size:10px; }
+
+@media (max-width:1000px) { .report-control-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+@media (max-width:600px) {
+  .report-control-grid { grid-template-columns:1fr; }
+  .report-control-actions { flex-direction:column; }
+  .report-control-actions .glass-button { width:100%; }
+  .report-currency-grid { grid-template-columns:1fr; }
+}
+
 /* AIS neutral material balance — green remains an accent, not the surface color */
 :root {
   --ais-primary:#195449;
