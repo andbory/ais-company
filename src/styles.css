@@ -182,3 +182,114 @@ nav { display:flex; flex-direction:column; gap:5px; } nav button { height:46px; 
 @media (max-width:760px) { .company-person-row { grid-template-columns:1fr; } .company-person-row .more-button { justify-self:start; } }
 @media (max-width:760px) { .people-cards-grid { grid-template-columns:1fr; gap:11px; } .person-balance-card { padding:16px; } .person-balance-currencies { gap:7px; } .person-currency-box { padding:10px 8px; } }
 @media (max-width:760px) { .report-control-grid { grid-template-columns:1fr 1fr; } .report-control-grid label:first-child { grid-column:1/-1; } .report-control-actions .glass-button { flex:1; } .report-currency-grid { grid-template-columns:1fr 1fr; } }
+
+/* AIS visual foundation — restrained Apple-inspired dark material */
+:root {
+  --ais-primary: #075c50;
+  --ais-primary-soft: #0d7b6a;
+  --ais-bg: #071c19;
+  --ais-bg-deep: #020b0a;
+  --ais-glass: rgba(10, 31, 28, .74);
+  --ais-glass-strong: rgba(8, 28, 25, .9);
+  --ais-border: rgba(176, 235, 220, .13);
+  --ais-highlight: rgba(220, 255, 247, .12);
+  --ais-text: #f3faf7;
+  --ais-text-secondary: #b4c9c3;
+  --ais-text-muted: #78958d;
+  --ais-success: #76cbb5;
+  --shadow: 0 24px 80px rgba(0, 0, 0, .38);
+}
+
+body {
+  background: var(--ais-bg-deep);
+}
+
+.app-shell {
+  background:
+    radial-gradient(ellipse at 82% -12%, rgba(12, 126, 104, .24), transparent 38%),
+    radial-gradient(ellipse at 8% 112%, rgba(0, 91, 76, .2), transparent 35%),
+    linear-gradient(135deg, #020b0a 0%, #071c19 56%, #041310 100%);
+}
+
+.app-shell:after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 0%, rgba(131, 221, 198, .05), transparent 42%);
+}
+
+.ambient {
+  background: #087b68;
+  filter: blur(120px);
+  opacity: .12;
+}
+
+.glass-panel,
+.glass-card {
+  background: linear-gradient(145deg, rgba(255, 255, 255, .065), rgba(5, 76, 63, .12)), var(--ais-glass);
+  border-color: var(--ais-border);
+  box-shadow: 0 18px 58px rgba(0, 0, 0, .26), inset 0 1px 0 rgba(228, 255, 248, .07);
+  backdrop-filter: blur(30px) saturate(140%);
+  -webkit-backdrop-filter: blur(30px) saturate(140%);
+}
+
+.sidebar {
+  border-color: rgba(176, 235, 220, .16);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, .42), inset 0 1px 0 rgba(228, 255, 248, .08);
+}
+
+.brand-logo,
+.workspace-logo,
+.company-logo {
+  background: rgba(3, 19, 16, .72);
+  border-color: rgba(118, 203, 181, .24);
+}
+
+.brand-logo { padding: 4px; }
+.workspace-logo { padding: 3px; }
+
+nav button,
+.icon-button,
+.mobile-menu,
+.glass-button,
+.filter-control,
+.date-filter {
+  transition: background-color 180ms ease-out, border-color 180ms ease-out, color 180ms ease-out, transform 140ms ease-out, box-shadow 180ms ease-out;
+}
+
+nav button:hover,
+.icon-button:hover,
+.glass-button:hover {
+  border-color: rgba(137, 224, 202, .28);
+  box-shadow: 0 9px 25px rgba(0, 0, 0, .18), inset 0 1px 0 rgba(228, 255, 248, .08);
+}
+
+.glass-button.primary {
+  background: linear-gradient(145deg, #0b7665, #064b41);
+  border-color: rgba(130, 224, 201, .3);
+  box-shadow: 0 12px 28px rgba(0, 76, 63, .3), inset 0 1px 0 rgba(233, 255, 249, .16);
+}
+
+.glass-button:active,
+nav button:active,
+.icon-button:active {
+  transform: scale(.98);
+}
+
+.page-content { padding-top: 42px; }
+.page-heading h1 { letter-spacing: -.045em; }
+.top-header { background: rgba(2, 11, 10, .2); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); }
+
+@media (prefers-reduced-transparency: reduce) {
+  .glass-panel,
+  .glass-card,
+  .top-header { background: #0a2420; backdrop-filter: none; -webkit-backdrop-filter: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  nav button,
+  .icon-button,
+  .mobile-menu,
+  .glass-button { transition: color 180ms ease-out, background-color 180ms ease-out, border-color 180ms ease-out; }
+}
