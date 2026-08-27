@@ -63,6 +63,20 @@ select:focus-visible {
 }
 
 .language-switch:active { transform:scale(.97); }
+
+@media (min-width:761px) and (max-width:1120px) {
+  .sidebar { width:226px; margin-left:12px; padding-inline:10px; }
+  .brand { padding-inline:6px; }
+  .workspace-switcher { margin-inline:0; }
+  nav button { padding-inline:10px; gap:10px; }
+  nav button span { font-size:12px; }
+  .top-header { padding-inline:28px; }
+  .page-content { padding-inline:28px; }
+  .dashboard-grid { grid-template-columns:1fr; }
+  .stats-grid { grid-template-columns:repeat(2,1fr); }
+  .hero-balance { min-height:240px; }
+  .balance-orbit { left:42%; }
+}
 .auth-card h1 { font-size:25px; }
 .auth-card p { color:var(--ais-text-muted); font-size:11px; margin-bottom:8px; }
 .auth-card label { display:flex; flex-direction:column; gap:6px; color:var(--ais-text-secondary); font-size:11px; }
