@@ -54,6 +54,15 @@ nav { display:flex; flex-direction:column; gap:5px; } nav button { height:46px; 
 .auth-card .brand-mark { margin-bottom:4px; align-self:flex-start; }
 .auth-logo { width:58px; height:58px; object-fit:contain; border-radius:17px; padding:6px; margin-bottom:8px; background:rgba(3,19,16,.72); border:1px solid rgba(118,203,181,.24); }
 .auth-language { align-self:center; margin-top:5px; }
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline:2px solid rgba(137,224,202,.72);
+  outline-offset:3px;
+}
+
+.language-switch:active { transform:scale(.97); }
 .auth-card h1 { font-size:25px; }
 .auth-card p { color:var(--ais-text-muted); font-size:11px; margin-bottom:8px; }
 .auth-card label { display:flex; flex-direction:column; gap:6px; color:var(--ais-text-secondary); font-size:11px; }
