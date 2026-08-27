@@ -460,6 +460,43 @@ td { height:54px; padding:10px 12px; }
 @media (max-width:1100px) { .people-cards-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media (max-width:600px) { .people-cards-grid { grid-template-columns:1fr; } }
 
+/* Accounts screen — financial balances arranged as a calm ledger */
+.accounts-toolbar { display:grid; grid-template-columns:minmax(220px,1fr) minmax(140px,190px) auto; gap:10px; padding:10px; background:rgba(17,23,22,.78); }
+.accounts-toolbar .filter-control { min-height:44px; width:100%; }
+.account-cards-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+.account-balance-card { min-width:0; padding:20px; background:rgba(20,27,26,.82); }
+.account-balance-head { display:flex; align-items:center; justify-content:space-between; gap:12px; padding-bottom:16px; border-bottom:1px solid rgba(255,255,255,.07); }
+.account-balance-head .person-cell { min-width:0; }
+.account-balance-head .person-cell > div { display:flex; flex-direction:column; gap:3px; min-width:0; }
+.account-balance-head .person-cell strong { max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.account-balance-head .person-cell small { color:var(--ais-text-muted); font-size:9px; }
+.account-amounts { display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:18px 0 14px; }
+.account-amounts > div { display:flex; flex-direction:column; gap:7px; padding:12px; border-radius:12px; background:rgba(255,255,255,.025); border:1px solid rgba(255,255,255,.06); }
+.account-amounts span { color:var(--ais-text-muted); font-size:9px; }
+.account-amounts strong { direction:ltr; font-size:15px; letter-spacing:-.02em; }
+.balance-owed-value { color:#dce9e5; }
+.balance-due-value { color:#d19b9b; }
+.account-net-total { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:13px 0 15px; border-top:1px solid rgba(255,255,255,.07); }
+.account-net-total span { color:var(--ais-text-muted); font-size:9px; }
+.account-net-total strong { direction:ltr; font-size:13px; }
+.account-net-total.balance-due-total strong { color:#d19b9b; }
+.account-net-total.balance-owed-total strong { color:#e1ebe8; }
+.account-net-total.balance-even-total strong { color:#8da49e; }
+.account-card-actions { padding-top:12px; border-top:1px solid rgba(255,255,255,.07); }
+.account-card-actions button { display:inline-flex; align-items:center; gap:7px; color:#8ab9ad; background:none; font-size:10px; }
+.opening-balances-card { margin-top:18px; }
+.opening-balances-card .card-head { align-items:center; padding-bottom:17px; border-bottom:1px solid rgba(255,255,255,.07); }
+.opening-balances-card .card-head h2 { font-size:17px; }
+.opening-balances-card .card-head p { margin-top:6px; }
+
+@media (max-width:1100px) { .account-cards-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media (max-width:760px) {
+  .accounts-toolbar { grid-template-columns:1fr; }
+  .account-cards-grid { grid-template-columns:1fr; }
+  .opening-balances-card .card-head { align-items:flex-start; flex-direction:column; gap:14px; }
+  .opening-balances-card .card-head .glass-button { width:100%; }
+}
+
 /* AIS neutral material balance — green remains an accent, not the surface color */
 :root {
   --ais-primary:#195449;
