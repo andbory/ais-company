@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 import type { FormEvent, ReactNode } from 'react'
 import './styles.css'
 import { clientRuntime } from './foundation/runtime'
@@ -8,12 +8,45 @@ if ('serviceWorker' in navigator) window.addEventListener('load', () => { void n
 
 type Screen = 'dashboard' | 'transfers' | 'settlements' | 'accounts' | 'people' | 'reports' | 'settings'
 type IconName = 'home' | 'transfer' | 'settle' | 'account' | 'people' | 'report' | 'settings' | 'search' | 'bell' | 'plus' | 'arrow' | 'more' | 'filter' | 'chevron' | 'check' | 'menu' | 'close' | 'building' | 'printer'
+type Language = 'ar' | 'en'
+type LanguageContextValue = { language: Language; direction: 'rtl' | 'ltr'; setLanguage: (language: Language) => void }
+
+const LanguageContext = createContext<LanguageContextValue | null>(null)
+
+function useLanguage() {
+  const value = useContext(LanguageContext)
+  if (!value) throw new Error('useLanguage must be used inside LanguageProvider')
+  return value
+}
+
+function LanguageProvider({ children }: { children: ReactNode }) {
+  const [language, setLanguage] = useState<Language>(() => {
+    const stored = window.localStorage.getItem('ais-language')
+    return stored === 'en' ? 'en' : 'ar'
+  })
+  useEffect(() => {
+    window.localStorage.setItem('ais-language', language)
+    document.documentElement.lang = language
+    document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr'
+  }, [language])
+  return <LanguageContext.Provider value={{ language, direction: language === 'ar' ? 'rtl' : 'ltr', setLanguage }}>{children}</LanguageContext.Provider>
+}
 
 const navItems: { id: Screen; label: string; icon: IconName }[] = [
   { id: 'dashboard', label: 'الرئيسية', icon: 'home' }, { id: 'transfers', label: 'الحوالات', icon: 'transfer' },
   { id: 'settlements', label: 'التسويات', icon: 'settle' }, { id: 'accounts', label: 'الحسابات', icon: 'account' },
   { id: 'people', label: 'الأشخاص', icon: 'people' }, { id: 'reports', label: 'التقارير', icon: 'report' }, { id: 'settings', label: 'الإعدادات', icon: 'settings' },
 ]
+
+const navLabels: Record<Screen, { ar: string; en: string }> = {
+  dashboard: { ar: 'الرئيسية', en: 'Home' },
+  transfers: { ar: 'الحوالات', en: 'Transfers' },
+  settlements: { ar: 'التسويات', en: 'Settlements' },
+  accounts: { ar: 'الحسابات', en: 'Accounts' },
+  people: { ar: 'الأشخاص', en: 'People' },
+  reports: { ar: 'التقارير', en: 'Reports' },
+  settings: { ar: 'الإعدادات', en: 'Settings' },
+}
 
 function Icon({ name, size = 20 }: { name: IconName; size?: number }) {
   const common = { width: size, height: size, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.7, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const }
@@ -80,29 +113,30 @@ async function printTransfer(id: string, printWindow: Window) {
   } catch { printWindow.close(); window.alert('تعذر تحميل بيانات الحوالة للطباعة.') }
 }
 function App() {
+  const { language, direction, setLanguage } = useLanguage()
   const [screen, setScreen] = useState<Screen>('dashboard')
   const [mobileNav, setMobileNav] = useState(false)
   const [user, setUser] = useState<ApiUser | null>(null)
   const [companySettings, setCompanySettings] = useState<CompanySettingsData | null>(null)
   const [authLoading, setAuthLoading] = useState(true)
   useEffect(() => { api<{ user: ApiUser }>('/auth/me').then((result) => { setUser(result.user); void api<CompanySettingsData>('/settings/company').then(setCompanySettings).catch(() => setCompanySettings(null)) }).catch(() => setUser(null)).finally(() => setAuthLoading(false)); const sync = () => void flushMutations(clientRuntime.apiBaseUrl); window.addEventListener('online', sync); if (navigator.onLine) sync(); return () => window.removeEventListener('online', sync) }, [])
-  useEffect(() => { const handleHeaderActions = (event: Event) => { const target = event.target as HTMLElement; if (target.closest('button[aria-label="البحث"]')) setScreen('transfers'); if (target.closest('button[aria-label="الإشعارات"]')) window.alert('لا توجد إشعارات جديدة حالياً.') }; document.addEventListener('click', handleHeaderActions); return () => document.removeEventListener('click', handleHeaderActions) }, [])
+  useEffect(() => { const handleHeaderActions = (event: Event) => { const target = event.target as HTMLElement; if (target.closest('button[data-header-action="search"]')) setScreen('transfers'); if (target.closest('button[data-header-action="notifications"]')) window.alert(language === 'ar' ? 'لا توجد إشعارات جديدة حالياً.' : 'There are no new notifications.'); }; document.addEventListener('click', handleHeaderActions); return () => document.removeEventListener('click', handleHeaderActions) }, [language])
   if (authLoading) return <div className="auth-state">جارٍ تحميل النظام...</div>
   if (!user) return <Login onLogin={setUser}/>
-  const title = navItems.find((item) => item.id === screen)?.label ?? 'الرئيسية'
-  return <div className="app-shell">
+  const title = navLabels[screen][language]
+  return <div className="app-shell" dir={direction} data-language={language}>
     <div className="ambient ambient-one"/><div className="ambient ambient-two"/>
     <aside className={`sidebar glass-panel ${mobileNav ? 'mobile-open' : ''}`}>
       <div className="brand"><img className="brand-logo" src={companySettings?.logoDataUrl ?? '/brand/company-logo.png'} alt="شعار الشركة"/><div><strong>{companySettings?.englishName ?? 'AIS COMPANY'}</strong><span>{companySettings?.systemName ?? 'النظام المالي المتكامل'}</span></div><button type="button" aria-label="إغلاق قائمة التنقل" className="mobile-close" onClick={() => setMobileNav(false)}><Icon name="close" size={18}/></button></div>
-      <div className="workspace-switcher"><img className="workspace-logo" src={companySettings?.logoDataUrl ?? '/brand/company-logo.png'} alt=""/><div><small>مساحة العمل</small><strong>{companySettings?.englishName ?? 'AIS Company'}</strong></div><Icon name="chevron" size={16}/></div>
-      <nav>{navItems.map((item) => <button key={item.id} className={screen === item.id ? 'active' : ''} onClick={() => { setScreen(item.id); setMobileNav(false) }}><Icon name={item.icon}/><span>{item.label}</span>{item.id === 'transfers' && <em>12</em>}</button>)}</nav>
-      <div className="sidebar-bottom"><div className="sync-status"><i/><div><strong>متصل الآن</strong><span>تمت المزامنة منذ لحظات</span></div></div><button type="button" className="profile" onClick={() => setScreen('settings')}><span className="avatar">{user.username[0]}</span><span><strong>{user.username}</strong><small>{user.role === 'ADMIN' ? 'المدير العام' : 'مستخدم للعرض'}</small></span><Icon name="settings" size={17}/></button></div>
+      <div className="workspace-switcher"><img className="workspace-logo" src={companySettings?.logoDataUrl ?? '/brand/company-logo.png'} alt=""/><div><small>{language === 'ar' ? 'مساحة العمل' : 'Workspace'}</small><strong>{companySettings?.englishName ?? 'AIS Company'}</strong></div><Icon name="chevron" size={16}/></div>
+      <nav>{navItems.map((item) => <button key={item.id} className={screen === item.id ? 'active' : ''} onClick={() => { setScreen(item.id); setMobileNav(false) }}><Icon name={item.icon}/><span>{navLabels[item.id][language]}</span>{item.id === 'transfers' && <em>12</em>}</button>)}</nav>
+      <div className="sidebar-bottom"><div className="sync-status"><i/><div><strong>{language === 'ar' ? 'متصل الآن' : 'Connected now'}</strong><span>{language === 'ar' ? 'تمت المزامنة منذ لحظات' : 'Synced moments ago'}</span></div></div><button type="button" className="profile" onClick={() => setScreen('settings')}><span className="avatar">{user.username[0]}</span><span><strong>{user.username}</strong><small>{user.role === 'ADMIN' ? (language === 'ar' ? 'المدير العام' : 'General manager') : (language === 'ar' ? 'مستخدم للعرض' : 'Viewer')}</small></span><Icon name="settings" size={17}/></button></div>
     </aside>
     <main className="main-area">
-      <header className="top-header"><button type="button" aria-label="فتح قائمة التنقل" className="mobile-menu" onClick={() => setMobileNav(true)}><Icon name="menu"/></button><div className="breadcrumb"><span>مساحة العمل</span><b>/</b><strong>{title}</strong></div><div className="header-actions"><button type="button" aria-label="البحث" className="icon-button"><Icon name="search"/></button><button type="button" aria-label="الإشعارات" className="icon-button notification"><Icon name="bell"/><i/></button><span className="header-divider"/><span className="header-date">الأحد، 16 أغسطس 2026</span></div></header>
+      <header className="top-header"><button type="button" aria-label={language === 'ar' ? 'فتح قائمة التنقل' : 'Open navigation'} className="mobile-menu" onClick={() => setMobileNav(true)}><Icon name="menu"/></button><div className="breadcrumb"><span>{language === 'ar' ? 'مساحة العمل' : 'Workspace'}</span><b>/</b><strong>{title}</strong></div><div className="header-actions"><button type="button" className="language-switch" onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')} aria-label={language === 'ar' ? 'التبديل إلى الإنجليزية' : 'Switch to Arabic'}>{language === 'ar' ? 'EN' : 'عربي'}</button><button type="button" aria-label={language === 'ar' ? 'البحث' : 'Search'} data-header-action="search" className="icon-button"><Icon name="search"/></button><button type="button" aria-label={language === 'ar' ? 'الإشعارات' : 'Notifications'} data-header-action="notifications" className="icon-button notification"><Icon name="bell"/><i/></button><span className="header-divider"/><span className="header-date">{language === 'ar' ? 'الأحد، 16 أغسطس 2026' : 'Sunday, August 16, 2026'}</span></div></header>
       <div className="page-content">{screen === 'dashboard' && <Dashboard user={user} onNavigate={setScreen}/>} {screen === 'transfers' && <TransfersV2 canManage={user.role === 'ADMIN'}/>} {screen === 'settlements' && <SettlementsByRole canManage={user.role === 'ADMIN'}/>} {screen === 'accounts' && <AccountsByRole canManage={user.role === 'ADMIN'}/>} {screen === 'people' && <PeopleV2 canManage={user.role === 'ADMIN'}/>} {screen === 'reports' && <Reports/>} {screen === 'settings' && <SettingsV2 user={user} onLogout={() => { fetch(`${clientRuntime.apiBaseUrl}/auth/logout`, { method: 'POST', credentials: 'include' }).finally(() => window.location.reload()) }}/>}</div>
     </main>
-    <div className="mobile-tabbar glass-panel">{navItems.slice(0, 5).map((item) => <button key={item.id} className={screen === item.id ? 'active' : ''} onClick={() => setScreen(item.id)}><Icon name={item.icon} size={19}/><span>{item.label}</span></button>)}</div>
+    <div className="mobile-tabbar glass-panel">{navItems.slice(0, 5).map((item) => <button key={item.id} className={screen === item.id ? 'active' : ''} onClick={() => setScreen(item.id)}><Icon name={item.icon} size={19}/><span>{navLabels[item.id][language]}</span></button>)}</div>
   </div>
 }
 
@@ -254,4 +288,4 @@ function SettingsV2({ user, onLogout }: { user: ApiUser; onLogout: () => void })
 
 
 import { createRoot } from 'react-dom/client'
-createRoot(document.getElementById('root')!).render(<App />)
+createRoot(document.getElementById('root')!).render(<LanguageProvider><App /></LanguageProvider>)
