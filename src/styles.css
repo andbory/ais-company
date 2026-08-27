@@ -497,6 +497,29 @@ td { height:54px; padding:10px 12px; }
   .opening-balances-card .card-head .glass-button { width:100%; }
 }
 
+/* Settlements screen — compact, auditable financial activity */
+.page-action { display:flex; justify-content:flex-start; margin:-8px 0 16px; }
+.page-action .glass-button { min-width:142px; }
+.page-action + .table-card { margin-top:0; }
+.page-action + .table-card,
+.page-content > .table-card:has(.table-top h2) { background:rgba(17,23,22,.82); }
+.page-action + .table-card .table-top,
+.page-content > .table-card .table-top { padding-bottom:16px; border-bottom:1px solid rgba(255,255,255,.07); }
+.page-action + .table-card .table-top h2,
+.page-content > .table-card .table-top h2 { font-size:18px; letter-spacing:-.02em; }
+.page-action + .table-card th,
+.page-content > .table-card th { height:46px; color:#8ca69f; font-weight:600; }
+.page-action + .table-card td,
+.page-content > .table-card td { height:60px; }
+.page-action + .table-card tbody tr:hover,
+.page-content > .table-card tbody tr:hover { background:rgba(125,183,168,.04); }
+.page-action + .table-card .mono,
+.page-content > .table-card .mono { color:#dce9e5; }
+.page-action + .table-card .currency-code,
+.page-content > .table-card .currency-code { display:inline-flex; min-width:42px; justify-content:center; padding:5px 8px; border:1px solid rgba(125,183,168,.18); border-radius:8px; background:rgba(125,183,168,.06); }
+
+@media (max-width:600px) { .page-action .glass-button { width:100%; } }
+
 /* AIS neutral material balance — green remains an accent, not the surface color */
 :root {
   --ais-primary:#195449;
