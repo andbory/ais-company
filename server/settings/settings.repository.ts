@@ -17,8 +17,8 @@ export const defaultCompanySettings: CompanySettings = {
   systemName: 'AIS COMPANY — النظام المالي المتكامل',
   address: '',
   phone: '',
-  logoDataUrl: '/icons/ais-192.svg',
-  stampDataUrl: null,
+  logoDataUrl: '/brand/company-logo.png',
+  stampDataUrl: '/brand/company-stamp.png',
   companyPeople: [],
 }
 
@@ -63,7 +63,13 @@ export const settingsRepository = {
   async getCompany(): Promise<CompanySettings> {
     const setting = await prisma.systemSetting.findUnique({ where: { key: 'company_profile' } })
     if (!setting || typeof setting.value !== 'object' || setting.value === null) return defaultCompanySettings
-    return { ...defaultCompanySettings, ...(setting.value as Partial<CompanySettings>) }
+    const saved = setting.value as Partial<CompanySettings>
+    return {
+      ...defaultCompanySettings,
+      ...saved,
+      logoDataUrl: saved.logoDataUrl === '/icons/ais-192.svg' ? defaultCompanySettings.logoDataUrl : (saved.logoDataUrl ?? defaultCompanySettings.logoDataUrl),
+      stampDataUrl: saved.stampDataUrl ?? defaultCompanySettings.stampDataUrl,
+    }
   },
   async updateCompany(input: CompanySettings): Promise<CompanySettings> {
     await prisma.systemSetting.upsert({ where: { key: 'company_profile' }, update: { value: input }, create: { key: 'company_profile', value: input } })
