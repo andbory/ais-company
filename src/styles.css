@@ -401,12 +401,23 @@ td { height:54px; padding:10px 12px; }
 .home-stat-column { display:grid; grid-template-rows:1fr 1fr; gap:18px; }
 .home-stat-column .stat-card { min-height:0; }
 .home-lower-grid { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(280px,.9fr); gap:18px; }
+.home-status-strip { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1px; padding:1px; overflow:hidden; border:1px solid rgba(255,255,255,.08); border-radius:18px; background:rgba(255,255,255,.07); }
+.home-status-strip > div { min-height:72px; display:flex; align-items:center; gap:10px; padding:14px 17px; background:rgba(20,27,26,.84); }
+.home-status-strip > div:first-child { border-radius:17px 0 0 17px; }
+.home-status-strip > div:last-child { border-radius:0 17px 17px 0; }
+.home-status-strip svg { flex:0 0 auto; color:#7faea3; }
+.home-status-strip > div > div { display:flex; flex-direction:column; gap:3px; min-width:0; }
+.home-status-strip strong { font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.home-status-strip small { color:var(--ais-text-muted); font-size:9px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.status-dot { width:8px; height:8px; flex:0 0 auto; border-radius:50%; background:#7db7a8; box-shadow:0 0 0 5px rgba(125,183,168,.1); }
 
 @media (max-width:900px) {
   .home-hero { grid-template-columns:minmax(0,1fr) 220px; padding:30px; }
   .home-orb { width:190px; height:190px; }
   .home-orb img { width:58px; height:58px; }
   .home-command-grid, .home-lower-grid { grid-template-columns:1fr; }
+  .home-status-strip { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .home-status-strip > div:first-child, .home-status-strip > div:last-child { border-radius:0; }
   .home-stat-column { grid-template-columns:repeat(2,minmax(0,1fr)); grid-template-rows:none; }
 }
 
@@ -423,6 +434,7 @@ td { height:54px; padding:10px 12px; }
   .home-stat-column .stat-card { padding:14px; }
   .home-balance-card { padding:18px; }
   .home-party-values { gap:8px; }
+  .home-status-strip { grid-template-columns:1fr; }
 }
 
 /* AIS neutral material balance — green remains an accent, not the surface color */
