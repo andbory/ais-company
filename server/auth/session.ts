@@ -3,7 +3,8 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 import { prisma } from '../db/prisma.js'
 
 export const SESSION_COOKIE = 'ais_session'
-const SESSION_TTL_MS = 8 * 60 * 60 * 1000
+// The session remains valid across browser restarts. The user explicitly ends it via logout.
+const SESSION_TTL_MS = 365 * 24 * 60 * 60 * 1000
 
 function hashToken(token: string): string {
   return createHash('sha256').update(token).digest('hex')
@@ -26,7 +27,7 @@ export function parseSessionCookie(request: IncomingMessage): string | null {
 }
 
 export function setSessionCookie(response: ServerResponse, token: string, secure: boolean): void {
-  const flags = ['Path=/', 'HttpOnly', 'SameSite=Lax', 'Max-Age=28800']
+  const flags = ['Path=/', 'HttpOnly', 'SameSite=Lax', 'Max-Age=31536000']
   if (secure) flags.push('Secure')
   response.setHeader('Set-Cookie', `${SESSION_COOKIE}=${encodeURIComponent(token)}; ${flags.join('; ')}`)
 }
