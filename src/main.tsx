@@ -121,7 +121,7 @@ function App() {
   const [authLoading, setAuthLoading] = useState(true)
   useEffect(() => { api<{ user: ApiUser }>('/auth/me').then((result) => { setUser(result.user); void api<CompanySettingsData>('/settings/company').then(setCompanySettings).catch(() => setCompanySettings(null)) }).catch(() => setUser(null)).finally(() => setAuthLoading(false)); const sync = () => void flushMutations(clientRuntime.apiBaseUrl); window.addEventListener('online', sync); if (navigator.onLine) sync(); return () => window.removeEventListener('online', sync) }, [])
   useEffect(() => { const handleHeaderActions = (event: Event) => { const target = event.target as HTMLElement; if (target.closest('button[data-header-action="search"]')) setScreen('transfers'); if (target.closest('button[data-header-action="notifications"]')) window.alert(language === 'ar' ? 'لا توجد إشعارات جديدة حالياً.' : 'There are no new notifications.'); }; document.addEventListener('click', handleHeaderActions); return () => document.removeEventListener('click', handleHeaderActions) }, [language])
-  if (authLoading) return <div className="auth-state">جارٍ تحميل النظام...</div>
+  if (authLoading) return <div className="auth-state">{language === 'ar' ? 'جارٍ تحميل النظام...' : 'Loading the system...'}</div>
   if (!user) return <Login onLogin={setUser}/>
   const title = navLabels[screen][language]
   return <div className="app-shell" dir={direction} data-language={language}>
@@ -141,6 +141,7 @@ function App() {
 }
 
 function Login({ onLogin }: { onLogin: (user: ApiUser) => void }) {
+  const { language, direction, setLanguage } = useLanguage()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -149,7 +150,7 @@ function Login({ onLogin }: { onLogin: (user: ApiUser) => void }) {
     event.preventDefault(); setBusy(true); setError('')
     try { const result = await api<{ user: ApiUser }>('/auth/login', { method: 'POST', body: JSON.stringify({ username, password }) }); onLogin(result.user) } catch { setError('بيانات الدخول غير صحيحة.') } finally { setBusy(false) }
   }
-  return <div className="auth-state"><form className="auth-card glass-card" onSubmit={submit} dir="rtl"><div className="brand-mark">AIS</div><span className="eyebrow">AIS COMPANY</span><h1>تسجيل الدخول</h1><p>ادخل إلى مساحة العمل المالية الآمنة.</p><label>اسم المستخدم<input value={username} onChange={(event) => setUsername(event.target.value)} autoComplete="username" required/></label><label>كلمة المرور<input value={password} onChange={(event) => setPassword(event.target.value)} type="password" autoComplete="current-password" required/></label>{error && <div className="form-error">{error}</div>}<GlassButton type="submit" primary>{busy ? 'جارٍ التحقق...' : 'دخول'}</GlassButton></form></div>
+  return <div className="auth-state" dir={direction}><form className="auth-card glass-card" onSubmit={submit}><img className="auth-logo" src="/brand/company-logo.png" alt={language === 'ar' ? 'شعار الشركة' : 'Company logo'}/><span className="eyebrow">AIS COMPANY</span><h1>{language === 'ar' ? 'تسجيل الدخول' : 'Sign in'}</h1><p>{language === 'ar' ? 'ادخل إلى مساحة العمل المالية الآمنة.' : 'Enter your secure financial workspace.'}</p><label>{language === 'ar' ? 'اسم المستخدم' : 'Username'}<input value={username} onChange={(event) => setUsername(event.target.value)} autoComplete="username" required/></label><label>{language === 'ar' ? 'كلمة المرور' : 'Password'}<input value={password} onChange={(event) => setPassword(event.target.value)} type="password" autoComplete="current-password" required/></label>{error && <div className="form-error">{language === 'ar' ? 'بيانات الدخول غير صحيحة.' : 'The login details are incorrect.'}</div>}<GlassButton type="submit" primary>{busy ? (language === 'ar' ? 'جارٍ التحقق...' : 'Verifying...') : (language === 'ar' ? 'دخول' : 'Sign in')}</GlassButton><button type="button" className="language-switch auth-language" onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')}>{language === 'ar' ? 'English' : 'العربية'}</button></form></div>
 }
 
 function PageHeader({ eyebrow, title, description, action, onAction }: { eyebrow: string; title: string; description: string; action?: string; onAction?: () => void }) { return <div className="page-heading"><div><span className="eyebrow">{eyebrow}</span><h1>{title}</h1><p>{description}</p></div>{action && onAction && <GlassButton primary onClick={onAction}><Icon name="plus" size={18}/>{action}</GlassButton>}</div> }
